@@ -17,7 +17,11 @@ connectDB();
 
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json())
 
 app.use("/status", statusRouter);
@@ -26,7 +30,7 @@ app.use("/messages", messageRouter);
 app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
-    res.send({messafe: "Hello World its TuChat Backend Server"})
+    res.send({message: "Hello World its TuChat Backend Server"})
 })
 
 const server = http.createServer(app);
@@ -89,7 +93,7 @@ io.on("connection", (socket) => {
         socket.join(liveId);
         const count = lives.get(liveId) || 0;
         lives.set(liveId, count + 1);
-        io.to(liveId).emit("viewer-count", live.get(liveId));
+        io.to(liveId).emit("viewer-count", lives.get(liveId));
     });
 
     socket.on("offer", ({liveId, offer}) => {
@@ -118,3 +122,46 @@ io.on("connection", (socket) => {
 server.listen(PORT, "0.0.0.0", () => {
     console.log(`Backend Server connected Succesfully ${PORT}`)
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

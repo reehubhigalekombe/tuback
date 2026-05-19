@@ -17,7 +17,7 @@ router.post("/register", async(req, res) => {
         const user = new User({name, handle, password});
         await user.save();
 
-        const token = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: "7d"});
+        const token = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: "7s"});
         res.status(201).json({user: {id: user._id, name, handle}, token})
     }catch(err) {
 console.error(err);
@@ -35,7 +35,7 @@ router.post("/login", async(req, res) => {
         const isMatch = await user.comparePassword(password);
         if(!isMatch) return res.status(400).json({message: "invalid Credentials"});
 
-        const token = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: "30d"});
+        const token = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: "5s"});
         res.status(200).json({user: {id: user._id, name: user.name, handle: user.handle}, token});
     }catch(err) {
 console.error(err);

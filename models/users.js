@@ -12,6 +12,22 @@ const userSchema = new mongoose.Schema({
     email: {
            type: String, unique: true, sparse: true
     },
+    phone: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    avatar: {
+        type: String,
+    },
+    isOnline: {
+        type: Boolean,
+        default: false,
+    },
+    lastSeen: {
+        type: Date,
+        default: null
+    },
     password: {   type: String, required: true}
 },
 {timestamps: true})

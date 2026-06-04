@@ -9,6 +9,8 @@ import {Server} from "socket.io";
 import messageRouter from "./routes/messageRouter.js";
 import authRouter from "./routes/authRouter.js";
 import WebSocket, {WebSocketServer} from "ws";
+import uploadRouter from "./routes/uploadRouter.js"
+
 
 dotenv.config();
 
@@ -28,6 +30,7 @@ app.use("/status", statusRouter);
 app.use("/uploads", express.static("uploads"));
 app.use("/messages", messageRouter);
 app.use("/auth", authRouter);
+app.use("/media", uploadRouter)
 
 app.get("/", (req, res) => {
     res.send({message: "Hello World its TuChat Backend Server"})

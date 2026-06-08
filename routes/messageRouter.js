@@ -14,6 +14,55 @@ router.get("/:chatId",  async (req, res) => {
     console.error("Failed fetching mesages", err);
     res.status(500).json({error: "Server error please"})
    }
+});
+
+router.post("/send", async (req, res) => {
+   try {
+      const {senderId, recieverId, text, type} = req.body;
+      const chatId = [senderId, receiverId].sort().join("_");
+
+      const message = await Message.create({
+         senderId, receiverId, chatId, text, type: type || "text"
+      });
+      res.json(message);
+
+   }catch(err) {
+      console.error(err)
+      res.status(500).json({message: "Sorry falailed to send message"});
+   }
+});
+
+router.get("/conversations/:userId", async (req, res) => {
+   try {
+      const {userId} = req.params;
+      const messages = await Messages.find({
+         $or: [
+            {senderId: userId},
+            {receiverId: userId},
+         ],
+
+      }).sort({createdAt: -1});
+      const chatMap = new Map();
+       for (const msg of messages) {
+         const otherUserId = msg.senderId === userId? msg.recieverId : msg.senderId;
+
+         if(!chatMap.has(msg.chatId)) {
+            const user = await  User.findById(otherUserId).select(
+               "name handle avatar isOnline lastSeen"
+            );
+            chatMap.set(msg.chatId, {
+               chatId: msg.chatId,
+               user,
+               lastMessage: msg.text,
+               updatedAt: msg.reatedAt,
+            });
+         }
+       }
+res.json([...chatMap.values()])
+   }  catch(err) {
+      console.error(err);
+      res.status(500).json({message: "failed to load Converstaions"})
+   }
 })
 
 export default router;

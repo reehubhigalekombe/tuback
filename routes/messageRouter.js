@@ -1,12 +1,13 @@
 import express from "express";
 import Message from "../models/message.js";
+import User from "../models/users.js"
 
 const router = express.Router();
 
 router.get("/:chatId",  async (req, res) => {
    try {
      const{chatId} = req.params
-    const messages = await Message.find({chatId: req.params.chatId})
+    const messages = await Message.find({chatId})
     .sort({createdAt: 1});
 
     res.json(messages)
@@ -18,7 +19,10 @@ router.get("/:chatId",  async (req, res) => {
 
 router.post("/send", async (req, res) => {
    try {
-      const {senderId, recieverId, text, type} = req.body;
+      const {senderId, receiverId, text, type} = req.body;
+      if(!senderId || !receiverId) {
+         return res.status(400).json({message: "There is a missing sender or receiver"})
+      }
       const chatId = [senderId, receiverId].sort().join("_");
 
       const message = await Message.create({
@@ -35,7 +39,7 @@ router.post("/send", async (req, res) => {
 router.get("/conversations/:userId", async (req, res) => {
    try {
       const {userId} = req.params;
-      const messages = await Messages.find({
+      const messages = await Message.find({
          $or: [
             {senderId: userId},
             {receiverId: userId},
@@ -44,7 +48,7 @@ router.get("/conversations/:userId", async (req, res) => {
       }).sort({createdAt: -1});
       const chatMap = new Map();
        for (const msg of messages) {
-         const otherUserId = msg.senderId === userId? msg.recieverId : msg.senderId;
+         const otherUserId = msg.senderId === userId? msg.receiverId : msg.senderId;
 
          if(!chatMap.has(msg.chatId)) {
             const user = await  User.findById(otherUserId).select(
@@ -54,7 +58,7 @@ router.get("/conversations/:userId", async (req, res) => {
                chatId: msg.chatId,
                user,
                lastMessage: msg.text,
-               updatedAt: msg.reatedAt,
+               updatedAt: msg.createdAt,
             });
          }
        }

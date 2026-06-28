@@ -12,7 +12,6 @@ import WebSocket, {WebSocketServer} from "ws";
 import uploadRouter from "./routes/uploadRouter.js";
 import contactRouter from "./routes/contactRouter.js"
 
-
 dotenv.config();
 
 const app = express();
@@ -127,46 +126,4 @@ io.on("connection", (socket) => {
 server.listen(PORT, "0.0.0.0", () => {
     console.log(`Backend Server connected Succesfully ${PORT}`)
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

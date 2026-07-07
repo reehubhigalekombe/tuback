@@ -5,15 +5,22 @@ import User from "../models/users.js"
 const router = express.Router();
 
 router.post("/upload/avatar",  upload.single("avatar"), async (req, res) => {
-const {userId} = req.body;
+try {
+    const {userId} = req.body;
 const user = await User.findByIdAndUpdate(
     userId, {avatar: req.file.path},
     {new: true}
 );
 res.json({
-    success: true,
-    avatar: user.avatar
+    success: true, user
 });
+}catch(err) {
+    console.log(err);
+    res.status(500).json({
+        success: false,
+        message: err.message
+    })
+}
 });
 
 router.post("/upload/media", upload.single("file"),  async (req, res) => {

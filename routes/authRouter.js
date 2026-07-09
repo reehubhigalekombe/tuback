@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../models/users.js";
 import jwt from "jsonwebtoken"
+import { sendWelcomeSMS } from "../services/africasTalking.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT || "supersecret"
@@ -28,6 +29,12 @@ router.post("/register", async(req, res) => {
 
         const user = new User({name, handle, phone,  password});
         await user.save();
+try {
+            await sendWelcomeSMS(user.name, user.phone)
+
+}catch(error) {
+    console.error("Welcome sms falied", err)
+}
 
         const token = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: "1d"});
         res.status(201).json(

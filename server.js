@@ -6,7 +6,7 @@ import statusRouter from "./routes/statusRouter.js";
 import Message from "./models/message.js";
 import http from "http";
 import {Server} from "socket.io";
-import messageRouter from "./routes/messageRouter.js";
+import messageRouter from "./routes/messageRouter.js";     
 import authRouter from "./routes/authRouter.js";
 import WebSocket, {WebSocketServer} from "ws";
 import uploadRouter from "./routes/uploadRouter.js";
@@ -39,18 +39,29 @@ app.get("/", (req, res) => {
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({server});
+const connectedUsers = new Map();
 
 wss.on("connection", (ws) => {
     console.log("The Websocket server connection succcess");
+    let currentUserId = null
 
     ws.on("message", async(raw) => {
         try {
                     const payload = JSON.parse(raw.toString())
                     console.log("WS payload:", payload);
-                    if(payload.type === "join" || payload.type === 'status') {
+
+                    if(payload.type === "join") {
+                        currentUserId = payload.userId;
+                        connectedUsers.set(payload.userId, ws);
+                        console.log(`User ${payload.userId} connected`)
                         return
                     };
-                    if(!payload.chatId || !payload.sender) {
+
+                    if(payload.type === "status") {
+                        return
+                    }
+
+                    if(!payload.chatId || !payload.sender || !payload.receiver) {
                         console.error("Invalid message payload");
                         return;
                     }
@@ -58,24 +69,38 @@ wss.on("connection", (ws) => {
 const savedMessage = await Message.create({
     chatId: payload.chatId,
     senderId: payload.sender,
-    receiverId: payload.receiver  || "unknown",
+    receiverId: payload.receiver,
     text: payload.message  || "",
     type: payload.type || "text",
     file: payload.file || null,
+    status: "sent"
 });
+const response = {
+    ...savedMessage.toObject(),
+    tempId: payload.tempId
+};
 
-wss.clients.forEach((client) => {
-    if(client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(savedMessage));
-    }
-});
+const senderSocket = connectedUsers.get(payload.sender);
+const receiverSocket = connectedUsers.get(payload.receiver);
+
+if(senderSocket && senderSocket.readyState === WebSocket.OPEN) {
+    senderSocket.send(JSON.stringify(response))
+}
+
+if(receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
+    receiverSocket.send(JSON.stringify(response))
+}
         }catch (err) {
             console.error("Ws parse error:", err);
         }
     });
 
     ws.on("close", () => {
-        console.log("Gosh WebSocket client disconnected")
+        if(currentUserId) {
+            connectedUsers.delete(currentUserId);
+            console.log( `User ${currentUserId} disconnected`)
+        }
+   
     });
 });
 

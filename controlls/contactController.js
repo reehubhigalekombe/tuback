@@ -2,6 +2,15 @@ import User from "../models/users.js";
 export const syncContacts = async(req, res) => {
     try {
         const {contacts} = req.body;
+         const normalizePhone = (phone) => {
+        let cleaned = phone.replace(/\D/g, "");
+        if(cleaned.startsWith("0")) {
+            cleaned = "254" + cleaned.substring(1)
+        }
+
+            return cleaned
+        
+    }
         const phoneNumbers = contacts.map(c => c.phone);
         console.log("================================");
         console.log("Phones received from the app");

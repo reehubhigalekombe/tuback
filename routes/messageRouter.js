@@ -26,7 +26,7 @@ router.get("/conversations/:userId", async (req, res) => {
             console.log("User found:", user)
 
          if(!chatMap.has(msg.chatId)) {
-        tMap.set(msg.chatId, {
+        chatMap.set(msg.chatId, {
                chatId: msg.chatId,
                user,
                lastMessage: msg.text,

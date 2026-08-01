@@ -21,7 +21,7 @@ router.get("/conversations/:userId", async (req, res) => {
            console.log("Current message:", msg);
     console.log("Other user id:", otherUserId);
         const user = await  User.findById(otherUserId).select(
-               "name handle avatar isOnline lastSeen"
+               "namephone handle avatar isOnline lastSeen"
             );
             console.log("User found:", user)
 

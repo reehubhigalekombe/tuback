@@ -28,14 +28,12 @@ export const syncContacts = async(req, res) => {
 
         const users = await User.find().select(
             "_id name handle phone avatar isOnline");
-const matchedUsers = users.fileter(user => 
+const matchedUsers = users.filter(user => 
     phoneNumbers.includes(normalizePhone(user.phone))
 );
 res.json(matchedUsers)
         console.log("Matched Users");
-        console.log(users);
-        console.log("================================");
-        res.json(users);
+        console.log(matchedUsers);
         
     }catch(err) {
         console.error(err)

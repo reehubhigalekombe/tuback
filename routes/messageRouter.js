@@ -21,14 +21,22 @@ router.get("/conversations/:userId", async (req, res) => {
            console.log("Current message:", msg);
     console.log("Other user id:", otherUserId);
         const user = await  User.findById(otherUserId).select(
-               "namephone handle avatar isOnline lastSeen"
+               "name phone handle avatar isOnline lastSeen"
             );
             console.log("User found:", user)
 
          if(!chatMap.has(msg.chatId)) {
         chatMap.set(msg.chatId, {
                chatId: msg.chatId,
-               user,
+               user: {
+                  id: user._id,
+                  name:user.phone,
+                  phone: user.phone,
+                  handle: user.handle,
+                  avatar: user.avatar,
+                  isOnline: user.isOnline,
+                  lastSeen: user.lastSeem
+               },
                lastMessage: msg.text,
                updatedAt: msg.createdAt,
             });

@@ -26,20 +26,23 @@ router.get("/conversations/:userId", async (req, res) => {
             console.log("User found:", user)
 
          if(!chatMap.has(msg.chatId)) {
-        chatMap.set(msg.chatId, {
-               chatId: msg.chatId,
-               user: {
-                  id: user._id,
-                  name:user.phone,
-                  phone: user.phone,
-                  handle: user.handle,
-                  avatar: user.avatar,
-                  isOnline: user.isOnline,
-                  lastSeen: user.lastSeem
-               },
-               lastMessage: msg.text,
-               updatedAt: msg.createdAt,
-            });
+  const conversation = {
+   chatId: msg.chatId,
+   user: {
+            id: user._id,
+            name: user.phone,
+            phone: user.phone,
+            handle: user.handle,
+            avatar: user.avatar,
+            isOnline: user.isOnline,
+            lastSeen: user.lastSeen,
+   },
+     lastMessage: msg.text,
+     status: msg.status,
+     updatedAt: msg.createdAt,
+  };
+  console.log("Conversation object: ", conversation)
+  chatMap.set(msg.chatId, conversation)
          }
        }
 res.json([...chatMap.values()])

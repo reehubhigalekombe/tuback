@@ -1,16 +1,36 @@
 import express from "express";
 import upload from "../middleware/upload.js";
 import User from "../models/users.js"
+import message from "../models/message.js";
 
 const router = express.Router();
 
 router.post("/upload/avatar",  upload.single("avatar"), async (req, res) => {
 try {
+    console.log("Body: ", req.body);
+    console.log("File: ", req.file)
+
+    if(!req.file) {
+        return res.status(400).json({
+            success: false,
+            message: "No avatar file received"
+        });
+
+    }
     const {userId} = req.body;
+
+    if(!userId) {
+        return res.status(400).json({
+            success: false,
+            message: "No userId received"
+        })
+    }
+    console.log("userId: ", userId)
 const user = await User.findByIdAndUpdate(
     userId, {avatar: req.file.path},
     {new: true}
 );
+console.log("Updated User: ", user)
 res.json({
     success: true, user
 });

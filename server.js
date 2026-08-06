@@ -11,6 +11,7 @@ import authRouter from "./routes/authRouter.js";
 import WebSocket, {WebSocketServer} from "ws";
 import uploadRouter from "./routes/uploadRouter.js";
 import contactRouter from "./routes/contactRouter.js"
+import { type } from "os";
 
 dotenv.config();
 
@@ -58,7 +59,29 @@ wss.on("connection", (ws) => {
                     };
 
                     if(payload.type === "status") {
-                        return
+                        const updatedMessage = await Message.findByIdAndUpdate(
+                            payload.messageId,
+                            {status: payload.status},
+                            {new: true}
+                        );
+
+                        if(!updatedMessage) {
+                            console.log(
+                                `Message ${updatedMessage._id} updated to ${updatedMessage.status}`
+                            )
+                            const senderSocket = connectedUsers.get(updatedMessage.senderId)
+                         
+                            if(senderSocket &&  senderSocket.readyState === WebSocket.Open) {
+                                senderSocket.send(
+                                    JSON.stringify({
+                                        type: "status",
+                                        messageId: updatedMessage._id,
+                                        status: updatedMessage.status
+                                    })
+                                )
+                            }
+                            return
+                        }
                     }
 
                     if(!payload.chatId || !payload.sender || !payload.receiver) {
